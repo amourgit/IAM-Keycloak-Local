@@ -1,0 +1,37 @@
+# EIGEN IAM — .gitignore :: IAM-Keycloak-Local
+
+# Secrets — NE JAMAIS committer
+.env
+*.env.local
+*.env.production
+secrets/
+
+# Realms générés (contiennent des secrets)
+# Committer uniquement les realms sans secrets
+keycloak/realm-config/realm-*.json
+
+# À l'exception du template (pas de secrets)
+!keycloak/realm-config/eigen-local-realm-template.json
+
+# Build Maven
+keycloak/extensions/**/target/
+keycloak/extensions/**/*.class
+
+# JARs compilés (reconstruits via build-spis.sh)
+keycloak/extensions/*.jar
+
+# Données Docker
+data/
+postgres-data/
+redis-data/
+
+# Logs
+logs/
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store

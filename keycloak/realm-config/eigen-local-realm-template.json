@@ -1,0 +1,683 @@
+{
+  "realm": "realm-${ETABLISSEMENT_CODE}",
+  "displayName": "EIGEN — ${ETABLISSEMENT_NOM}",
+  "displayNameHtml": "<div class='eigen-realm-name'><strong>EIGEN</strong> &mdash; ${ETABLISSEMENT_NOM}</div>",
+  "enabled": true,
+  "loginTheme": "eigen-local",
+  "accountTheme": "eigen-local",
+  "emailTheme": "eigen-local",
+  "adminTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr", "en"],
+  "defaultLocale": "fr",
+
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": true,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+
+  "accessTokenLifespan": 1800,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 3600,
+  "ssoSessionMaxLifespan": 86400,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 604800,
+  "clientSessionIdleTimeout": 3600,
+  "clientSessionMaxLifespan": 86400,
+  "refreshTokenMaxReuse": 0,
+  "revokeRefreshToken": true,
+
+  "roles": {
+    "realm": [
+      {
+        "name": "etudiant.base",
+        "description": "Rôle de base — tout étudiant actif dans l'établissement",
+        "composite": false
+      },
+      {
+        "name": "etudiant.l1",
+        "description": "Étudiant en Licence 1ère année",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "etudiant.l2",
+        "description": "Étudiant en Licence 2ème année",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "etudiant.l3",
+        "description": "Étudiant en Licence 3ème année",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "etudiant.master1",
+        "description": "Étudiant en Master 1ère année",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "etudiant.master2",
+        "description": "Étudiant en Master 2ème année",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "etudiant.dut",
+        "description": "Étudiant en DUT",
+        "composite": true,
+        "composites": {"realm": ["etudiant.base"]}
+      },
+      {
+        "name": "doctorat.candidat",
+        "description": "Doctorant inscrit en thèse",
+        "composite": false
+      },
+      {
+        "name": "enseignant.base",
+        "description": "Rôle de base pour tout enseignant",
+        "composite": false
+      },
+      {
+        "name": "enseignant.titulaire",
+        "description": "Enseignant titulaire (fonctionnaire)",
+        "composite": true,
+        "composites": {"realm": ["enseignant.base"]}
+      },
+      {
+        "name": "enseignant.vacataire",
+        "description": "Enseignant vacataire ou chargé de cours",
+        "composite": true,
+        "composites": {"realm": ["enseignant.base"]}
+      },
+      {
+        "name": "enseignant.chef.departement",
+        "description": "Chef de département académique",
+        "composite": true,
+        "composites": {"realm": ["enseignant.titulaire"]}
+      },
+      {
+        "name": "enseignant.responsable.pedagogique",
+        "description": "Responsable pédagogique d'un cursus",
+        "composite": true,
+        "composites": {"realm": ["enseignant.base"]}
+      },
+      {
+        "name": "personnel.admin.base",
+        "description": "Personnel administratif — accès de base",
+        "composite": false
+      },
+      {
+        "name": "personnel.admin.scolarite",
+        "description": "Personnel de la scolarité — gestion des dossiers étudiants",
+        "composite": true,
+        "composites": {"realm": ["personnel.admin.base"]}
+      },
+      {
+        "name": "personnel.admin.rh",
+        "description": "Personnel RH — gestion des ressources humaines",
+        "composite": true,
+        "composites": {"realm": ["personnel.admin.base"]}
+      },
+      {
+        "name": "personnel.admin.finances",
+        "description": "Personnel financier — gestion comptable",
+        "composite": true,
+        "composites": {"realm": ["personnel.admin.base"]}
+      },
+      {
+        "name": "personnel.admin.bibliotheque",
+        "description": "Bibliothécaire — gestion du fonds documentaire",
+        "composite": true,
+        "composites": {"realm": ["personnel.admin.base"]}
+      },
+      {
+        "name": "moniteur.labo",
+        "description": "Moniteur de laboratoire ou de salle informatique",
+        "composite": false
+      },
+      {
+        "name": "admin.etablissement",
+        "description": "Administrateur technique de l'établissement — accès total",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "etudiant.base", "enseignant.base", "personnel.admin.base",
+            "personnel.admin.scolarite", "personnel.admin.rh",
+            "personnel.admin.finances", "personnel.admin.bibliotheque"
+          ]
+        }
+      },
+      {
+        "name": "auditeur.local",
+        "description": "Accès en lecture seule aux journaux d'audit locaux",
+        "composite": false
+      }
+    ]
+  },
+
+  "groups": [
+    {
+      "name": "EIGEN-${ETABLISSEMENT_CODE_UPPER}",
+      "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}",
+      "subGroups": [
+        {
+          "name": "Etudiants",
+          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Etudiants",
+          "realmRoles": ["etudiant.base"]
+        },
+        {
+          "name": "Enseignants",
+          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Enseignants",
+          "realmRoles": ["enseignant.base"]
+        },
+        {
+          "name": "Personnels-Administratifs",
+          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Personnels-Administratifs",
+          "realmRoles": ["personnel.admin.base"]
+        },
+        {
+          "name": "Doctorants",
+          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Doctorants",
+          "realmRoles": ["doctorat.candidat"]
+        },
+        {
+          "name": "Moniteurs",
+          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Moniteurs",
+          "realmRoles": ["moniteur.labo"]
+        }
+      ]
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "gateway-${ETABLISSEMENT_CODE}",
+      "name": "Gateway Master ${ETABLISSEMENT_NOM}",
+      "description": "Client OIDC du Gateway Master de l'établissement — validation des tokens et Token Exchange",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": false,
+      "secret": "${EIGEN_GATEWAY_CLIENT_SECRET}",
+      "rootUrl": "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
+      "baseUrl": "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
+      "redirectUris": [
+        "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga/*",
+        "https://portail.${ETABLISSEMENT_CODE}.eigen.ga/*",
+        "http://localhost:8000/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
+        "https://portail.${ETABLISSEMENT_CODE}.eigen.ga",
+        "http://localhost:8000",
+        "http://localhost:3000"
+      ],
+      "defaultClientScopes": [
+        "openid", "profile", "email", "eigen-local-claims"
+      ],
+      "optionalClientScopes": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "access.token.lifespan": "1800",
+        "token.exchange": "true"
+      }
+    },
+    {
+      "clientId": "eigen-referentiel-local",
+      "name": "Référentiel Local ${ETABLISSEMENT_NOM}",
+      "description": "Service account du Référentiel Python local — création et gestion des profils Keycloak",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": false,
+      "secret": "${EIGEN_REFERENTIEL_LOCAL_CLIENT_SECRET}",
+      "defaultClientScopes": ["openid"],
+      "optionalClientScopes": [],
+      "attributes": {
+        "access.token.lifespan": "60"
+      }
+    }
+  ],
+
+  "clientScopes": [
+    {
+      "name": "eigen-local-claims",
+      "description": "Claims académiques EIGEN — tous les attributs du profil local injectés dans le token JWT",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "compte_referentiel_id-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "compte_referentiel_id",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "compte_referentiel_id",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "user_id_national-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "user_id_national",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "user_id_national",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "identifiant_national-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "identifiant_national",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "identifiant_national",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "type_profil-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "type_profil",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "type_profil",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "filiere-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "filiere",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "filiere",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "composante-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "composante",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "composante",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "annee_academique-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "annee_academique",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "annee_academique",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "etablissement_code-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "etablissement_code",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "etablissement_code",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "permission_codes-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "false",
+            "user.attribute": "permission_codes",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "permission_codes",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "aggregate.attrs": "true"
+          }
+        },
+        {
+          "name": "realm-roles-local-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "foo",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String",
+            "multivalued": "true"
+          }
+        },
+        {
+          "name": "profil_sub-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+
+  "userProfile": {
+    "attributes": [
+      {
+        "name": "username",
+        "displayName": "Identifiant de connexion",
+        "validations": {
+          "length": {"min": 3, "max": 100}
+        },
+        "permissions": {"view": ["admin", "user"], "edit": ["admin"]}
+      },
+      {
+        "name": "email",
+        "displayName": "Adresse email",
+        "validations": {"email": {}},
+        "permissions": {"view": ["admin", "user"], "edit": ["admin"]}
+      },
+      {
+        "name": "firstName",
+        "displayName": "Prénom",
+        "permissions": {"view": ["admin", "user"], "edit": ["admin"]}
+      },
+      {
+        "name": "lastName",
+        "displayName": "Nom de famille",
+        "permissions": {"view": ["admin", "user"], "edit": ["admin"]}
+      },
+      {
+        "name": "compte_referentiel_id",
+        "displayName": "ID Compte Référentiel",
+        "annotations": {"inputType": "text"},
+        "validations": {
+          "pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
+        },
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "user_id_national",
+        "displayName": "ID Keycloak Central (sub)",
+        "annotations": {"inputType": "text"},
+        "validations": {
+          "pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
+        },
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "identifiant_national",
+        "displayName": "Identifiant National EIGEN",
+        "annotations": {"inputType": "text"},
+        "validations": {
+          "pattern": {"pattern": "^(ETU|ENS|PERS|DOC|VAC|MON)-\\d{4}-\\d{5}$"}
+        },
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "type_profil",
+        "displayName": "Type de profil",
+        "annotations": {"inputType": "select"},
+        "validations": {
+          "options": {"options": ["etudiant", "enseignant", "personnel_admin", "vacataire", "doctorant", "moniteur"]}
+        },
+        "required": {"roles": ["admin"]},
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "filiere",
+        "displayName": "Filière / Cursus",
+        "annotations": {"inputType": "text"},
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "composante",
+        "displayName": "Composante (UFR, Faculté, Institut)",
+        "annotations": {"inputType": "text"},
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "annee_academique",
+        "displayName": "Année académique",
+        "annotations": {"inputType": "text"},
+        "validations": {
+          "pattern": {"pattern": "^\\d{4}-\\d{4}$"}
+        },
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "etablissement_code",
+        "displayName": "Code établissement",
+        "annotations": {"inputType": "text"},
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "permission_codes",
+        "displayName": "Codes de permissions EIGEN",
+        "annotations": {"inputType": "multiselect"},
+        "multivalued": true,
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      },
+      {
+        "name": "departement_ad",
+        "displayName": "Département LDAP/AD",
+        "annotations": {"inputType": "text"},
+        "permissions": {"view": ["admin"], "edit": ["admin"]}
+      }
+    ]
+  },
+
+  "identityProviders": [
+    {
+      "alias": "keycloak-central-eigen",
+      "displayName": "Connexion via EIGEN National",
+      "providerId": "oidc",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": false,
+      "addReadTokenRoleOnCreate": false,
+      "authenticateByDefault": false,
+      "linkOnly": false,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "authorizationUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/auth",
+        "tokenUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/token",
+        "jwksUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/certs",
+        "logoutUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/logout",
+        "userInfoUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/userinfo",
+        "clientId": "gateway-${ETABLISSEMENT_CODE}",
+        "clientSecret": "${EIGEN_GATEWAY_CLIENT_SECRET}",
+        "issuer": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national",
+        "validateSignature": "true",
+        "useJwksUrl": "true",
+        "syncMode": "IMPORT",
+        "defaultScope": "openid profile email eigen-national-claims",
+        "pkceEnabled": "true",
+        "pkceMethod": "S256"
+      },
+      "mappers": [
+        {
+          "name": "identifiant_national-from-central",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "claim": "identifiant_national",
+            "user.attribute": "identifiant_national"
+          }
+        },
+        {
+          "name": "type_utilisateur-from-central",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "claim": "type_utilisateur",
+            "user.attribute": "type_utilisateur_national"
+          }
+        },
+        {
+          "name": "user_id_national-from-sub",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "claim": "sub",
+            "user.attribute": "user_id_national"
+          }
+        },
+        {
+          "name": "email-from-central",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "syncMode": "INHERIT",
+            "claim": "email",
+            "user.attribute": "email"
+          }
+        }
+      ]
+    }
+  ],
+
+  "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1) and notUsername()",
+
+  "smtpServer": {
+    "host": "${SMTP_HOST}",
+    "port": "${SMTP_PORT:-587}",
+    "from": "noreply@${ETABLISSEMENT_CODE}.eigen.ga",
+    "fromDisplayName": "EIGEN — ${ETABLISSEMENT_NOM}",
+    "replyTo": "support@${ETABLISSEMENT_CODE}.eigen.ga",
+    "replyToDisplayName": "Support ${ETABLISSEMENT_NOM}",
+    "ssl": "false",
+    "starttls": "true",
+    "auth": "true",
+    "user": "${SMTP_USER}",
+    "password": "${SMTP_PASSWORD}"
+  },
+
+  "eventsEnabled": true,
+  "eventsListeners": [
+    "jboss-logging",
+    "eigen-kafka-event-listener",
+    "eigen-session-manager"
+  ],
+  "enabledEventTypes": [
+    "LOGIN", "LOGIN_ERROR", "LOGOUT", "LOGOUT_ERROR",
+    "REFRESH_TOKEN", "REFRESH_TOKEN_ERROR",
+    "UPDATE_PASSWORD", "UPDATE_PASSWORD_ERROR",
+    "CODE_TO_TOKEN", "CODE_TO_TOKEN_ERROR",
+    "IDENTITY_PROVIDER_LOGIN", "IDENTITY_PROVIDER_FIRST_LOGIN",
+    "TOKEN_EXCHANGE", "TOKEN_EXCHANGE_ERROR",
+    "CLIENT_LOGIN", "CLIENT_LOGIN_ERROR",
+    "INTROSPECT_TOKEN"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "eventsExpiration": 604800,
+
+  "requiredActions": [
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 20
+    },
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 10
+    }
+  ],
+
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "noindex, nofollow",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none'; default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  }
+}

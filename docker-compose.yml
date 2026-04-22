@@ -1,0 +1,196 @@
+version: "3.9"
+
+# =============================================================================
+# EIGEN IAM — Keycloak Local (par Établissement)
+# Ce fichier est déployé dans chaque établissement (UOB, ESGA, INSG, USTM...).
+# La variable ETABLISSEMENT_CODE différencie chaque instance.
+#
+# Particularités vs Keycloak Central :
+#   - Realm par établissement (realm-uob, realm-esga, ...)
+#   - User Federation LDAP/AD (si l'établissement en dispose)
+#   - Identity Provider → Keycloak Central (SSO inter-établissements)
+#   - Redis pour la gestion des sessions actives (interrogé par le Gateway)
+#   - SPI supplémentaire : eigen-session-manager (écriture Redis à la connexion)
+# =============================================================================
+
+networks:
+  eigen-local-net:
+    driver: bridge
+    name: eigen-local-${ETABLISSEMENT_CODE:-uob}-net
+  eigen-kafka-net:
+    external: true
+    name: eigen-central-kafka-net
+
+volumes:
+  keycloak-local-db-data:
+    name: eigen-local-${ETABLISSEMENT_CODE:-uob}-postgres-data
+  redis-local-data:
+    name: eigen-local-${ETABLISSEMENT_CODE:-uob}-redis-data
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — Base de données Keycloak Local
+  # ---------------------------------------------------------------------------
+  keycloak-local-db:
+    image: postgres:16-alpine
+    container_name: eigen-local-${ETABLISSEMENT_CODE:-uob}-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${KC_DB_NAME:-keycloak_local}
+      POSTGRES_USER: ${KC_DB_USER:-keycloak_local_usr}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:?KC_DB_PASSWORD obligatoire}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - keycloak-local-db-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eigen-local-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KC_DB_USER:-keycloak_local_usr} -d ${KC_DB_NAME:-keycloak_local}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      eigen.component: "keycloak-local-db"
+      eigen.etablissement: "${ETABLISSEMENT_CODE:-uob}"
+
+  # ---------------------------------------------------------------------------
+  # Redis — Gestion des sessions actives EIGEN
+  # Le Gateway Master interroge Redis pour vérifier qu'une session est active.
+  # Cette instance Redis est LOCALE à l'établissement.
+  # ---------------------------------------------------------------------------
+  redis-local:
+    image: redis:7.2-alpine
+    container_name: eigen-local-${ETABLISSEMENT_CODE:-uob}-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD obligatoire}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1
+      --loglevel warning
+      --tcp-keepalive 300
+    volumes:
+      - redis-local-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - eigen-local-net
+    ports:
+      - "${REDIS_PORT_EXPOSE:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      eigen.component: "redis-local"
+      eigen.etablissement: "${ETABLISSEMENT_CODE:-uob}"
+
+  # ---------------------------------------------------------------------------
+  # Keycloak Local — IAM de l'établissement
+  # ---------------------------------------------------------------------------
+  keycloak-local:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: eigen-keycloak-local-${ETABLISSEMENT_CODE:-uob}
+    restart: unless-stopped
+    depends_on:
+      keycloak-local-db:
+        condition: service_healthy
+      redis-local:
+        condition: service_healthy
+    command:
+      - start
+      - --optimized
+      - --import-realm
+    environment:
+      # --- Base de données ---
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-local-db:5432/${KC_DB_NAME:-keycloak_local}
+      KC_DB_USERNAME: ${KC_DB_USER:-keycloak_local_usr}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?KC_DB_PASSWORD obligatoire}
+      KC_DB_POOL_MIN_SIZE: 5
+      KC_DB_POOL_MAX_SIZE: 25
+
+      # --- Admin Keycloak ---
+      KEYCLOAK_ADMIN: ${KC_ADMIN_USER:-eigen-admin-local}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD obligatoire}
+
+      # --- Réseau ---
+      KC_HOSTNAME: ${KC_HOSTNAME:?KC_HOSTNAME obligatoire}
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 8080
+      KC_HTTPS_PORT: 8443
+      KC_PROXY: edge
+
+      # --- Logs ---
+      KC_LOG_LEVEL: ${KC_LOG_LEVEL:-INFO}
+
+      # --- Health et Metrics ---
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+      # --- Features ---
+      KC_FEATURES: token-exchange,admin-fine-grained-authz,declarative-user-profile
+
+      # --- EIGEN : identité de l'établissement ---
+      EIGEN_ETABLISSEMENT_CODE: ${ETABLISSEMENT_CODE:?ETABLISSEMENT_CODE obligatoire}
+      EIGEN_ETABLISSEMENT_NOM: ${ETABLISSEMENT_NOM:-Établissement EIGEN}
+      EIGEN_REALM_ID: realm-${ETABLISSEMENT_CODE:-uob}
+
+      # --- EIGEN : connexion vers Keycloak Central ---
+      EIGEN_KC_CENTRAL_URL: ${KC_CENTRAL_URL:?KC_CENTRAL_URL obligatoire}
+      EIGEN_KC_CENTRAL_REALM: eigen-national
+      EIGEN_KC_CENTRAL_JWKS: ${KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/certs
+
+      # --- EIGEN : Kafka ---
+      EIGEN_KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP:?KAFKA_BOOTSTRAP obligatoire}
+      EIGEN_KAFKA_TOPIC_PREFIX: eigen.local.${ETABLISSEMENT_CODE:-uob}
+
+      # --- EIGEN : Redis sessions ---
+      EIGEN_REDIS_HOST: redis-local
+      EIGEN_REDIS_PORT: 6379
+      EIGEN_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      EIGEN_SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-86400}
+
+      # --- EIGEN : LDAP/AD (optionnel) ---
+      EIGEN_LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      EIGEN_LDAP_URL: ${LDAP_URL:-}
+      EIGEN_LDAP_BIND_DN: ${LDAP_BIND_DN:-}
+      EIGEN_LDAP_BIND_CREDENTIAL: ${LDAP_BIND_CREDENTIAL:-}
+      EIGEN_LDAP_USERS_DN: ${LDAP_USERS_DN:-}
+
+      EIGEN_SYSTEME_VERSION: ${EIGEN_VERSION:-1.0.0}
+
+    volumes:
+      - ./keycloak/themes/eigen-local:/opt/keycloak/themes/eigen-local:ro
+      - ./keycloak/realm-config:/opt/keycloak/data/import:ro
+      - ./keycloak/extensions:/opt/keycloak/providers:ro
+
+    networks:
+      - eigen-local-net
+      - eigen-kafka-net
+
+    ports:
+      - "${KC_HTTP_PORT_EXPOSE:-8090}:8080"
+      - "${KC_HTTPS_PORT_EXPOSE:-8453}:8443"
+
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+    labels:
+      eigen.component: "keycloak-local"
+      eigen.etablissement: "${ETABLISSEMENT_CODE:-uob}"
+      traefik.enable: "true"
+      traefik.http.routers.keycloak-local.rule: "Host(`${KC_HOSTNAME}`)"
+      traefik.http.routers.keycloak-local.tls: "true"
+      traefik.http.services.keycloak-local.loadbalancer.server.port: "8080"
