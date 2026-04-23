@@ -30,7 +30,7 @@ KC_BASE_URL="${KC_BASE_URL:-http://localhost:8090}"
 KC_ADMIN_USER="${KC_ADMIN_USER:-eigen-admin-local}"
 KC_ADMIN_PASSWORD="${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD obligatoire}"
 ETABLISSEMENT_CODE="${ETABLISSEMENT_CODE:?ETABLISSEMENT_CODE obligatoire}"
-TARGET_REALM="realm-${ETABLISSEMENT_CODE}"
+TARGET_REALM="eigen-local"
 
 KCADM="kcadm.sh"
 [ -f "/opt/keycloak/bin/kcadm.sh" ] && KCADM="/opt/keycloak/bin/kcadm.sh"
@@ -65,8 +65,8 @@ fi
 log_section "Configuration des Secrets Clients"
 
 for CLIENT_PAIR in \
-    "gateway-${ETABLISSEMENT_CODE}:${EIGEN_GATEWAY_CLIENT_SECRET:-}" \
-    "eigen-referentiel-local:${EIGEN_REFERENTIEL_LOCAL_CLIENT_SECRET:-}"; do
+    "gateway-local:${EIGEN_GATEWAY_CLIENT_SECRET:-}" \
+    "eigen-referentiel:${EIGEN_REFERENTIEL_CLIENT_SECRET:-}"; do
 
     CLIENT_ID="${CLIENT_PAIR%%:*}"
     SECRET="${CLIENT_PAIR##*:}"
@@ -93,19 +93,19 @@ log_section "Attribution des rôles au service account Référentiel"
 # Le Référentiel doit pouvoir gérer les utilisateurs dans Keycloak Local
 $KCADM add-roles \
     -r "$TARGET_REALM" \
-    --uusername "service-account-eigen-referentiel-local" \
+    --uusername "service-account-eigen-referentiel" \
     --cclientid realm-management \
     --rolename manage-users 2>/dev/null || log_warn "Rôle manage-users déjà assigné ou non trouvé"
 
 $KCADM add-roles \
     -r "$TARGET_REALM" \
-    --uusername "service-account-eigen-referentiel-local" \
+    --uusername "service-account-eigen-referentiel" \
     --cclientid realm-management \
     --rolename view-users 2>/dev/null || true
 
 $KCADM add-roles \
     -r "$TARGET_REALM" \
-    --uusername "service-account-eigen-referentiel-local" \
+    --uusername "service-account-eigen-referentiel" \
     --cclientid realm-management \
     --rolename manage-realm 2>/dev/null || true
 

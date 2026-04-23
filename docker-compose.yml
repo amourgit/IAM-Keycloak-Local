@@ -1,16 +1,20 @@
 version: "3.9"
 
 # =============================================================================
-# EIGEN IAM — Keycloak Local (par Établissement)
-# Ce fichier est déployé dans chaque établissement (UOB, ESGA, INSG, USTM...).
-# La variable ETABLISSEMENT_CODE différencie chaque instance.
+# EIGEN IAM — Keycloak Local (Instance complète par Établissement)
 #
-# Particularités vs Keycloak Central :
-#   - Realm par établissement (realm-uob, realm-esga, ...)
-#   - User Federation LDAP/AD (si l'établissement en dispose)
-#   - Identity Provider → Keycloak Central (SSO inter-établissements)
-#   - Redis pour la gestion des sessions actives (interrogé par le Gateway)
-#   - SPI supplémentaire : eigen-session-manager (écriture Redis à la connexion)
+# PRINCIPE FONDAMENTAL : chaque établissement dispose de son propre Keycloak
+# entier. Ce n'est pas du multi-tenant. Ce fichier est déployé tel quel dans
+# chaque établissement — seules les variables d'environnement changent.
+#
+# L'établissement est libre d'organiser ses realms internes comme il l'entend.
+# Le realm `eigen-local` est le realm EIGEN par défaut fourni et configuré.
+#
+# Composants du stack :
+#   - Keycloak 24 : IAM complet de l'établissement
+#   - PostgreSQL 16 : persistance Keycloak
+#   - Redis 7 : sessions actives (interrogées par le Gateway à chaque requête)
+#   - SPIs custom : eigen-kafka-event-listener + eigen-session-manager
 # =============================================================================
 
 networks:
@@ -141,7 +145,7 @@ services:
       # --- EIGEN : identité de l'établissement ---
       EIGEN_ETABLISSEMENT_CODE: ${ETABLISSEMENT_CODE:?ETABLISSEMENT_CODE obligatoire}
       EIGEN_ETABLISSEMENT_NOM: ${ETABLISSEMENT_NOM:-Établissement EIGEN}
-      EIGEN_REALM_ID: realm-${ETABLISSEMENT_CODE:-uob}
+      EIGEN_REALM_ID: eigen-local
 
       # --- EIGEN : connexion vers Keycloak Central ---
       EIGEN_KC_CENTRAL_URL: ${KC_CENTRAL_URL:?KC_CENTRAL_URL obligatoire}

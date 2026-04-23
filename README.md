@@ -1,8 +1,10 @@
 # EIGEN IAM — Keycloak Local
 
-> **IAM par Établissement — Système EIGEN, République Gabonaise**
+> **IAM complet par Établissement — Système EIGEN, République Gabonaise**
 
-Un seul repository, une seule image Docker, déployé dans chaque établissement avec sa propre configuration. La variable `ETABLISSEMENT_CODE` différencie chaque instance.
+**Principe architectural fondamental** : chaque établissement dispose de son propre Keycloak entier, souverain et indépendant. Il n'y a pas de multi-tenant. Ce n'est pas un realm parmi d'autres dans une instance partagée — c'est **une instance Keycloak complète dédiée** à l'établissement.
+
+L'établissement est libre d'organiser sa propre politique de realms en interne. EIGEN fournit le realm `eigen-local` pré-configuré comme point de départ. L'établissement peut créer des realms additionnels selon ses besoins spécifiques.
 
 ---
 

@@ -1,7 +1,7 @@
 {
-  "realm": "realm-${ETABLISSEMENT_CODE}",
-  "displayName": "EIGEN — ${ETABLISSEMENT_NOM}",
-  "displayNameHtml": "<div class='eigen-realm-name'><strong>EIGEN</strong> &mdash; ${ETABLISSEMENT_NOM}</div>",
+  "realm": "eigen-local",
+  "displayName": "EIGEN — Portail de l'Établissement",
+  "displayNameHtml": "<div class='eigen-realm-name'><strong>EIGEN</strong> &mdash; Portail Académique</div>",
   "enabled": true,
   "loginTheme": "eigen-local",
   "accountTheme": "eigen-local",
@@ -10,6 +10,8 @@
   "internationalizationEnabled": true,
   "supportedLocales": ["fr", "en"],
   "defaultLocale": "fr",
+
+  "_comment": "Ce realm est unique par instance Keycloak. Chaque établissement a son propre Keycloak complet. Les réorganisations internes (sous-realms, clients additionnels) sont à la discrétion de l'établissement.",
 
   "sslRequired": "external",
   "registrationAllowed": false,
@@ -51,37 +53,37 @@
       },
       {
         "name": "etudiant.l1",
-        "description": "Étudiant en Licence 1ère année",
+        "description": "Étudiant Licence 1",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
       {
         "name": "etudiant.l2",
-        "description": "Étudiant en Licence 2ème année",
+        "description": "Étudiant Licence 2",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
       {
         "name": "etudiant.l3",
-        "description": "Étudiant en Licence 3ème année",
+        "description": "Étudiant Licence 3",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
       {
         "name": "etudiant.master1",
-        "description": "Étudiant en Master 1ère année",
+        "description": "Étudiant Master 1",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
       {
         "name": "etudiant.master2",
-        "description": "Étudiant en Master 2ème année",
+        "description": "Étudiant Master 2",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
       {
         "name": "etudiant.dut",
-        "description": "Étudiant en DUT",
+        "description": "Étudiant DUT",
         "composite": true,
         "composites": {"realm": ["etudiant.base"]}
       },
@@ -92,12 +94,12 @@
       },
       {
         "name": "enseignant.base",
-        "description": "Rôle de base pour tout enseignant",
+        "description": "Enseignant — accès de base",
         "composite": false
       },
       {
         "name": "enseignant.titulaire",
-        "description": "Enseignant titulaire (fonctionnaire)",
+        "description": "Enseignant titulaire",
         "composite": true,
         "composites": {"realm": ["enseignant.base"]}
       },
@@ -109,7 +111,7 @@
       },
       {
         "name": "enseignant.chef.departement",
-        "description": "Chef de département académique",
+        "description": "Chef de département",
         "composite": true,
         "composites": {"realm": ["enseignant.titulaire"]}
       },
@@ -126,36 +128,36 @@
       },
       {
         "name": "personnel.admin.scolarite",
-        "description": "Personnel de la scolarité — gestion des dossiers étudiants",
+        "description": "Agent de scolarité",
         "composite": true,
         "composites": {"realm": ["personnel.admin.base"]}
       },
       {
         "name": "personnel.admin.rh",
-        "description": "Personnel RH — gestion des ressources humaines",
+        "description": "Agent RH",
         "composite": true,
         "composites": {"realm": ["personnel.admin.base"]}
       },
       {
         "name": "personnel.admin.finances",
-        "description": "Personnel financier — gestion comptable",
+        "description": "Agent comptable/financier",
         "composite": true,
         "composites": {"realm": ["personnel.admin.base"]}
       },
       {
         "name": "personnel.admin.bibliotheque",
-        "description": "Bibliothécaire — gestion du fonds documentaire",
+        "description": "Bibliothécaire",
         "composite": true,
         "composites": {"realm": ["personnel.admin.base"]}
       },
       {
         "name": "moniteur.labo",
-        "description": "Moniteur de laboratoire ou de salle informatique",
+        "description": "Moniteur de laboratoire",
         "composite": false
       },
       {
         "name": "admin.etablissement",
-        "description": "Administrateur technique de l'établissement — accès total",
+        "description": "Administrateur de l'établissement — accès total",
         "composite": true,
         "composites": {
           "realm": [
@@ -167,7 +169,7 @@
       },
       {
         "name": "auditeur.local",
-        "description": "Accès en lecture seule aux journaux d'audit locaux",
+        "description": "Accès lecture aux journaux d'audit locaux",
         "composite": false
       }
     ]
@@ -175,43 +177,23 @@
 
   "groups": [
     {
-      "name": "EIGEN-${ETABLISSEMENT_CODE_UPPER}",
-      "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}",
+      "name": "EIGEN-Etablissement",
+      "path": "/EIGEN-Etablissement",
       "subGroups": [
-        {
-          "name": "Etudiants",
-          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Etudiants",
-          "realmRoles": ["etudiant.base"]
-        },
-        {
-          "name": "Enseignants",
-          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Enseignants",
-          "realmRoles": ["enseignant.base"]
-        },
-        {
-          "name": "Personnels-Administratifs",
-          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Personnels-Administratifs",
-          "realmRoles": ["personnel.admin.base"]
-        },
-        {
-          "name": "Doctorants",
-          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Doctorants",
-          "realmRoles": ["doctorat.candidat"]
-        },
-        {
-          "name": "Moniteurs",
-          "path": "/EIGEN-${ETABLISSEMENT_CODE_UPPER}/Moniteurs",
-          "realmRoles": ["moniteur.labo"]
-        }
+        {"name": "Etudiants",               "path": "/EIGEN-Etablissement/Etudiants",               "realmRoles": ["etudiant.base"]},
+        {"name": "Enseignants",              "path": "/EIGEN-Etablissement/Enseignants",              "realmRoles": ["enseignant.base"]},
+        {"name": "Personnels-Administratifs","path": "/EIGEN-Etablissement/Personnels-Administratifs","realmRoles": ["personnel.admin.base"]},
+        {"name": "Doctorants",               "path": "/EIGEN-Etablissement/Doctorants",               "realmRoles": ["doctorat.candidat"]},
+        {"name": "Moniteurs",                "path": "/EIGEN-Etablissement/Moniteurs",                "realmRoles": ["moniteur.labo"]}
       ]
     }
   ],
 
   "clients": [
     {
-      "clientId": "gateway-${ETABLISSEMENT_CODE}",
-      "name": "Gateway Master ${ETABLISSEMENT_NOM}",
-      "description": "Client OIDC du Gateway Master de l'établissement — validation des tokens et Token Exchange",
+      "clientId": "gateway-local",
+      "name": "Gateway Master de l'Établissement",
+      "description": "Client OIDC du Gateway — valide les tokens locaux et orchestre le Token Exchange",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
@@ -222,23 +204,18 @@
       "authorizationServicesEnabled": false,
       "fullScopeAllowed": false,
       "secret": "${EIGEN_GATEWAY_CLIENT_SECRET}",
-      "rootUrl": "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
-      "baseUrl": "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
       "redirectUris": [
-        "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga/*",
-        "https://portail.${ETABLISSEMENT_CODE}.eigen.ga/*",
+        "https://gateway.eigen.local/*",
+        "https://portail.eigen.local/*",
         "http://localhost:8000/*",
         "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "https://gateway.${ETABLISSEMENT_CODE}.eigen.ga",
-        "https://portail.${ETABLISSEMENT_CODE}.eigen.ga",
+        "https://gateway.eigen.local",
         "http://localhost:8000",
         "http://localhost:3000"
       ],
-      "defaultClientScopes": [
-        "openid", "profile", "email", "eigen-local-claims"
-      ],
+      "defaultClientScopes": ["openid", "profile", "email", "eigen-local-claims"],
       "optionalClientScopes": [],
       "attributes": {
         "pkce.code.challenge.method": "S256",
@@ -247,9 +224,9 @@
       }
     },
     {
-      "clientId": "eigen-referentiel-local",
-      "name": "Référentiel Local ${ETABLISSEMENT_NOM}",
-      "description": "Service account du Référentiel Python local — création et gestion des profils Keycloak",
+      "clientId": "eigen-referentiel",
+      "name": "Référentiel EIGEN — Service Account",
+      "description": "Service account du Référentiel Python — création, mise à jour et gestion des profils Keycloak",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
@@ -259,19 +236,17 @@
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": false,
       "fullScopeAllowed": false,
-      "secret": "${EIGEN_REFERENTIEL_LOCAL_CLIENT_SECRET}",
+      "secret": "${EIGEN_REFERENTIEL_CLIENT_SECRET}",
       "defaultClientScopes": ["openid"],
       "optionalClientScopes": [],
-      "attributes": {
-        "access.token.lifespan": "60"
-      }
+      "attributes": {"access.token.lifespan": "60"}
     }
   ],
 
   "clientScopes": [
     {
       "name": "eigen-local-claims",
-      "description": "Claims académiques EIGEN — tous les attributs du profil local injectés dans le token JWT",
+      "description": "Claims académiques EIGEN injectés dans chaque token JWT local",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -304,8 +279,7 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "user_id_national",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -319,8 +293,7 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "identifiant_national",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -334,8 +307,7 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "type_profil",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -346,11 +318,10 @@
           "config": {
             "userinfo.token.claim": "true",
             "user.attribute": "filiere",
-            "id.token.claim": "true",
+            "id.token.claim": "false",
             "access.token.claim": "true",
             "claim.name": "filiere",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -364,8 +335,7 @@
             "id.token.claim": "false",
             "access.token.claim": "true",
             "claim.name": "composante",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -374,13 +344,12 @@
           "protocolMapper": "oidc-usermodel-attribute-mapper",
           "consentRequired": false,
           "config": {
-            "userinfo.token.claim": "true",
+            "userinfo.token.claim": "false",
             "user.attribute": "annee_academique",
             "id.token.claim": "false",
             "access.token.claim": "true",
             "claim.name": "annee_academique",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -389,13 +358,12 @@
           "protocolMapper": "oidc-usermodel-attribute-mapper",
           "consentRequired": false,
           "config": {
-            "userinfo.token.claim": "true",
+            "userinfo.token.claim": "false",
             "user.attribute": "etablissement_code",
             "id.token.claim": "false",
             "access.token.claim": "true",
             "claim.name": "etablissement_code",
-            "jsonType.label": "String",
-            "multivalued": "false"
+            "jsonType.label": "String"
           }
         },
         {
@@ -415,7 +383,7 @@
           }
         },
         {
-          "name": "realm-roles-local-mapper",
+          "name": "realm-roles-mapper",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-realm-role-mapper",
           "consentRequired": false,
@@ -425,16 +393,6 @@
             "claim.name": "realm_access.roles",
             "jsonType.label": "String",
             "multivalued": "true"
-          }
-        },
-        {
-          "name": "profil_sub-mapper",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-sub-mapper",
-          "consentRequired": false,
-          "config": {
-            "access.token.claim": "true",
-            "id.token.claim": "true"
           }
         }
       ]
@@ -446,9 +404,7 @@
       {
         "name": "username",
         "displayName": "Identifiant de connexion",
-        "validations": {
-          "length": {"min": 3, "max": 100}
-        },
+        "validations": {"length": {"min": 3, "max": 100}},
         "permissions": {"view": ["admin", "user"], "edit": ["admin"]}
       },
       {
@@ -470,78 +426,59 @@
       {
         "name": "compte_referentiel_id",
         "displayName": "ID Compte Référentiel",
-        "annotations": {"inputType": "text"},
-        "validations": {
-          "pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
-        },
+        "validations": {"pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "user_id_national",
-        "displayName": "ID Keycloak Central (sub)",
-        "annotations": {"inputType": "text"},
-        "validations": {
-          "pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
-        },
+        "displayName": "ID Keycloak Central (sub national)",
+        "validations": {"pattern": {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "identifiant_national",
         "displayName": "Identifiant National EIGEN",
-        "annotations": {"inputType": "text"},
-        "validations": {
-          "pattern": {"pattern": "^(ETU|ENS|PERS|DOC|VAC|MON)-\\d{4}-\\d{5}$"}
-        },
+        "validations": {"pattern": {"pattern": "^(ETU|ENS|PERS|DOC|VAC|MON)-\\d{4}-\\d{5}$"}},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "type_profil",
-        "displayName": "Type de profil",
+        "displayName": "Type de profil académique",
         "annotations": {"inputType": "select"},
-        "validations": {
-          "options": {"options": ["etudiant", "enseignant", "personnel_admin", "vacataire", "doctorant", "moniteur"]}
-        },
+        "validations": {"options": {"options": ["etudiant","enseignant","personnel_admin","vacataire","doctorant","moniteur"]}},
         "required": {"roles": ["admin"]},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "filiere",
         "displayName": "Filière / Cursus",
-        "annotations": {"inputType": "text"},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "composante",
         "displayName": "Composante (UFR, Faculté, Institut)",
-        "annotations": {"inputType": "text"},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "annee_academique",
         "displayName": "Année académique",
-        "annotations": {"inputType": "text"},
-        "validations": {
-          "pattern": {"pattern": "^\\d{4}-\\d{4}$"}
-        },
+        "validations": {"pattern": {"pattern": "^\\d{4}-\\d{4}$"}},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "etablissement_code",
         "displayName": "Code établissement",
-        "annotations": {"inputType": "text"},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "permission_codes",
         "displayName": "Codes de permissions EIGEN",
-        "annotations": {"inputType": "multiselect"},
         "multivalued": true,
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       },
       {
         "name": "departement_ad",
         "displayName": "Département LDAP/AD",
-        "annotations": {"inputType": "text"},
         "permissions": {"view": ["admin"], "edit": ["admin"]}
       }
     ]
@@ -565,7 +502,7 @@
         "jwksUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/certs",
         "logoutUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/logout",
         "userInfoUrl": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national/protocol/openid-connect/userinfo",
-        "clientId": "gateway-${ETABLISSEMENT_CODE}",
+        "clientId": "gateway-local",
         "clientSecret": "${EIGEN_GATEWAY_CLIENT_SECRET}",
         "issuer": "${EIGEN_KC_CENTRAL_URL}/realms/eigen-national",
         "validateSignature": "true",
@@ -579,38 +516,22 @@
         {
           "name": "identifiant_national-from-central",
           "identityProviderMapper": "oidc-user-attribute-idp-mapper",
-          "config": {
-            "syncMode": "INHERIT",
-            "claim": "identifiant_national",
-            "user.attribute": "identifiant_national"
-          }
-        },
-        {
-          "name": "type_utilisateur-from-central",
-          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
-          "config": {
-            "syncMode": "INHERIT",
-            "claim": "type_utilisateur",
-            "user.attribute": "type_utilisateur_national"
-          }
+          "config": {"syncMode": "INHERIT", "claim": "identifiant_national", "user.attribute": "identifiant_national"}
         },
         {
           "name": "user_id_national-from-sub",
           "identityProviderMapper": "oidc-user-attribute-idp-mapper",
-          "config": {
-            "syncMode": "INHERIT",
-            "claim": "sub",
-            "user.attribute": "user_id_national"
-          }
+          "config": {"syncMode": "INHERIT", "claim": "sub", "user.attribute": "user_id_national"}
+        },
+        {
+          "name": "type_utilisateur-from-central",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {"syncMode": "INHERIT", "claim": "type_utilisateur", "user.attribute": "type_utilisateur_national"}
         },
         {
           "name": "email-from-central",
           "identityProviderMapper": "oidc-user-attribute-idp-mapper",
-          "config": {
-            "syncMode": "INHERIT",
-            "claim": "email",
-            "user.attribute": "email"
-          }
+          "config": {"syncMode": "INHERIT", "claim": "email", "user.attribute": "email"}
         }
       ]
     }
@@ -618,26 +539,8 @@
 
   "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1) and notUsername()",
 
-  "smtpServer": {
-    "host": "${SMTP_HOST}",
-    "port": "${SMTP_PORT:-587}",
-    "from": "noreply@${ETABLISSEMENT_CODE}.eigen.ga",
-    "fromDisplayName": "EIGEN — ${ETABLISSEMENT_NOM}",
-    "replyTo": "support@${ETABLISSEMENT_CODE}.eigen.ga",
-    "replyToDisplayName": "Support ${ETABLISSEMENT_NOM}",
-    "ssl": "false",
-    "starttls": "true",
-    "auth": "true",
-    "user": "${SMTP_USER}",
-    "password": "${SMTP_PASSWORD}"
-  },
-
   "eventsEnabled": true,
-  "eventsListeners": [
-    "jboss-logging",
-    "eigen-kafka-event-listener",
-    "eigen-session-manager"
-  ],
+  "eventsListeners": ["jboss-logging", "eigen-kafka-event-listener", "eigen-session-manager"],
   "enabledEventTypes": [
     "LOGIN", "LOGIN_ERROR", "LOGOUT", "LOGOUT_ERROR",
     "REFRESH_TOKEN", "REFRESH_TOKEN_ERROR",
@@ -651,25 +554,6 @@
   "adminEventsEnabled": true,
   "adminEventsDetailsEnabled": true,
   "eventsExpiration": 604800,
-
-  "requiredActions": [
-    {
-      "alias": "UPDATE_PASSWORD",
-      "name": "Update Password",
-      "providerId": "UPDATE_PASSWORD",
-      "enabled": true,
-      "defaultAction": false,
-      "priority": 20
-    },
-    {
-      "alias": "CONFIGURE_TOTP",
-      "name": "Configure OTP",
-      "providerId": "CONFIGURE_TOTP",
-      "enabled": true,
-      "defaultAction": false,
-      "priority": 10
-    }
-  ],
 
   "browserSecurityHeaders": {
     "contentSecurityPolicyReportOnly": "",
